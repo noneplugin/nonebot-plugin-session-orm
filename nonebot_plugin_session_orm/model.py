@@ -90,7 +90,7 @@ async def get_or_add_session(session: Session) -> int:
                 .where(SessionModel.bot_id == session.bot_id)
                 .where(SessionModel.bot_type == session.bot_type)
                 .where(SessionModel.platform == session.platform)
-                .where(SessionModel.level == session.level)
+                .where(SessionModel.level == session.level.value)
                 .where(SessionModel.id1 == (session.id1 or ""))
                 .where(SessionModel.id2 == (session.id2 or ""))
                 .where(SessionModel.id3 == (session.id3 or ""))
@@ -103,7 +103,7 @@ async def get_or_add_session(session: Session) -> int:
             bot_id=session.bot_id,
             bot_type=session.bot_type,
             platform=session.platform,
-            level=session.level,
+            level=session.level.value,
             id1=session.id1 or "",
             id2=session.id2 or "",
             id3=session.id3 or "",

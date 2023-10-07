@@ -43,7 +43,7 @@ async def test_add_and_filter_session(app: App):
     async with get_session() as db_session:
         statement = select(SessionModel).where(
             SessionModel.bot_id == "2233",
-            SessionModel.level == SessionLevel.LEVEL2,
+            SessionModel.level == SessionLevel.LEVEL2.value,
             SessionModel.id2 == "1122",
         )
         session_models = (await db_session.scalars(statement)).all()
