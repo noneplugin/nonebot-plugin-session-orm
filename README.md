@@ -24,13 +24,11 @@ from nonebot import require
 
 require("nonebot_plugin_session_orm")
 
-from nonebot_plugin_orm import get_scoped_session
 from nonebot_plugin_session import EventSession
-from nonebot_plugin_session_orm import get_or_add_session_model
+from nonebot_plugin_session_orm import get_session_persist_id, get_session_by_persist_id
 
 @matcher.handle()
-async def handle(event_session: EventSession):
-    Session = get_scoped_session()
-    async with Session() as db_session:
-        session_model = await get_or_add_session_model(event_session, db_session)
+async def handle(session: EventSession):
+    persist_id = await get_session_persist_id(session) # 存储 session，返回 persist_id
+    session_loaded = await get_session_by_persist_id(persist_id) # 通过 persist_id 获取 session
 ```

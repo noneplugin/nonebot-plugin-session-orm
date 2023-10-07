@@ -1,8 +1,11 @@
-from typing import List, Union
+import asyncio
+import sys
+from typing import List, Optional, Union
 
+from nonebot.log import logger
 from nonebot_plugin_orm import Model, get_session
 from nonebot_plugin_session import Session, SessionIdType, SessionLevel
-from sqlalchemy import Integer, String, UniqueConstraint, select
+from sqlalchemy import Integer, String, UniqueConstraint, exc, select
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql import ColumnElement
 
@@ -82,42 +85,68 @@ class SessionModel(Model):
         return whereclause
 
 
-async def get_or_add_session(session: Session) -> int:
+_insert_mutex: Optional[asyncio.Lock] = None
+
+
+def _get_insert_mutex():
+    # py3.10以下，Lock必须在event_loop内创建
+    global _insert_mutex
+
+    if _insert_mutex is None:
+        _insert_mutex = asyncio.Lock()
+    elif sys.version_info < (3, 10):
+        # 还需要判断loop是否与之前创建的一致
+        # 单测中不同的test，loop也不一样
+        # 但是nonebot里loop始终是一样的
+        if getattr(_insert_mutex, "_loop") != asyncio.get_running_loop():
+            _insert_mutex = asyncio.Lock()
+
+    return _insert_mutex
+
+
+async def get_session_persist_id(session: Session) -> int:
+    statement = (
+        select(SessionModel.id)
+        .where(SessionModel.bot_id == session.bot_id)
+        .where(SessionModel.bot_type == session.bot_type)
+        .where(SessionModel.platform == session.platform)
+        .where(SessionModel.level == session.level.value)
+        .where(SessionModel.id1 == (session.id1 or ""))
+        .where(SessionModel.id2 == (session.id2 or ""))
+        .where(SessionModel.id3 == (session.id3 or ""))
+    )
+
     async with get_session() as db_session:
-        if persist_id := (
-            await db_session.scalars(
-                select(SessionModel.id)
-                .where(SessionModel.bot_id == session.bot_id)
-                .where(SessionModel.bot_type == session.bot_type)
-                .where(SessionModel.platform == session.platform)
-                .where(SessionModel.level == session.level.value)
-                .where(SessionModel.id1 == (session.id1 or ""))
-                .where(SessionModel.id2 == (session.id2 or ""))
-                .where(SessionModel.id3 == (session.id3 or ""))
-            )
-        ).one_or_none():
+        if persist_id := (await db_session.scalars(statement)).one_or_none():
             return persist_id
 
-    async with get_session() as db_session:
-        session_model = SessionModel(
-            bot_id=session.bot_id,
-            bot_type=session.bot_type,
-            platform=session.platform,
-            level=session.level.value,
-            id1=session.id1 or "",
-            id2=session.id2 or "",
-            id3=session.id3 or "",
-        )
-        db_session.add(session_model)
-        await db_session.commit()
-        await db_session.refresh(session_model)
-        return session_model.id
+    session_model = SessionModel(
+        bot_id=session.bot_id,
+        bot_type=session.bot_type,
+        platform=session.platform,
+        level=session.level.value,
+        id1=session.id1 or "",
+        id2=session.id2 or "",
+        id3=session.id3 or "",
+    )
+
+    async with _get_insert_mutex():
+        try:
+            async with get_session() as db_session:
+                db_session.add(session_model)
+                await db_session.commit()
+                await db_session.refresh(session_model)
+                return session_model.id
+        except exc.IntegrityError:
+            logger.debug(f"session ({session}) is already inserted")
+
+            async with get_session() as db_session:
+                return (await db_session.scalars(statement)).one()
 
 
-async def get_session_by_id(sid: int) -> Session:
+async def get_session_by_persist_id(sid: int) -> Session:
     async with get_session() as db_session:
-        if session_model := (
+        session_model = (
             await db_session.scalars(select(SessionModel).where(SessionModel.id == sid))
-        ).one_or_none():
-            return session_model.session
-    raise ValueError(f"Session with id '{sid}' not found")
+        ).one()
+        return session_model.session

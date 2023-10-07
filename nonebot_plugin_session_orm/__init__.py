@@ -5,7 +5,7 @@ require("nonebot_plugin_orm")
 require("nonebot_plugin_session")
 
 from . import migrations
-from .model import SessionModel, get_or_add_session, get_session_by_id
+from .model import SessionModel, get_session_by_persist_id, get_session_persist_id
 
 __plugin_meta__ = PluginMetadata(
     name="session 插件 orm 扩展",
