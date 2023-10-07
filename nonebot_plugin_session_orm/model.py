@@ -1,9 +1,8 @@
 from typing import List, Union
 
-from nonebot_plugin_orm import Model
+from nonebot_plugin_orm import Model, get_session
 from nonebot_plugin_session import Session, SessionIdType, SessionLevel
-from sqlalchemy import Integer, String, UniqueConstraint, exc, select
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import Integer, String, UniqueConstraint, select
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql import ColumnElement
 
@@ -83,41 +82,42 @@ class SessionModel(Model):
         return whereclause
 
 
-async def get_or_add_session_model(
-    session: Session, db_session: AsyncSession, commit: bool = True
-) -> SessionModel:
-    statement = (
-        select(SessionModel)
-        .where(SessionModel.bot_id == session.bot_id)
-        .where(SessionModel.bot_type == session.bot_type)
-        .where(SessionModel.platform == session.platform)
-        .where(SessionModel.level == session.level)
-        .where(SessionModel.id1 == (session.id1 or ""))
-        .where(SessionModel.id2 == (session.id2 or ""))
-        .where(SessionModel.id3 == (session.id3 or ""))
-    )
-    results = await db_session.scalars(statement)
-    if session_model := results.one_or_none():
-        return session_model
+async def get_or_add_session(session: Session) -> int:
+    async with get_session() as db_session:
+        if persist_id := (
+            await db_session.scalars(
+                select(SessionModel.id)
+                .where(SessionModel.bot_id == session.bot_id)
+                .where(SessionModel.bot_type == session.bot_type)
+                .where(SessionModel.platform == session.platform)
+                .where(SessionModel.level == session.level)
+                .where(SessionModel.id1 == (session.id1 or ""))
+                .where(SessionModel.id2 == (session.id2 or ""))
+                .where(SessionModel.id3 == (session.id3 or ""))
+            )
+        ).one_or_none():
+            return persist_id
 
-    session_model = SessionModel(
-        bot_id=session.bot_id,
-        bot_type=session.bot_type,
-        platform=session.platform,
-        level=session.level,
-        id1=session.id1 or "",
-        id2=session.id2 or "",
-        id3=session.id3 or "",
-    )
-    # 并发时可能会出现重复插入的情况
-    try:
-        async with db_session.begin_nested():
-            db_session.add(session_model)
-    except exc.IntegrityError:
-        session_model = (await db_session.scalars(statement)).one()
-
-    if commit:
+    async with get_session() as db_session:
+        session_model = SessionModel(
+            bot_id=session.bot_id,
+            bot_type=session.bot_type,
+            platform=session.platform,
+            level=session.level,
+            id1=session.id1 or "",
+            id2=session.id2 or "",
+            id3=session.id3 or "",
+        )
+        db_session.add(session_model)
         await db_session.commit()
         await db_session.refresh(session_model)
+        return session_model.id
 
-    return session_model
+
+async def get_session_by_id(sid: int) -> Session:
+    async with get_session() as db_session:
+        if session_model := (
+            await db_session.scalars(select(SessionModel).where(SessionModel.id == sid))
+        ).one_or_none():
+            return session_model.session
+    raise ValueError(f"Session with id '{sid}' not found")
