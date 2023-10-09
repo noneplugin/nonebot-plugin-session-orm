@@ -14,7 +14,7 @@ from alembic import op
 
 revision: str = "fff55366306e"
 down_revision: str | Sequence[str] | None = None
-branch_labels: str | Sequence[str] | None = None
+branch_labels: str | Sequence[str] | None = ("nonebot_plugin_session_orm",)
 depends_on: str | Sequence[str] | None = None
 
 
