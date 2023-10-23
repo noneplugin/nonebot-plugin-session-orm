@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nonebot_plugin_session_orm"
-version = "0.1.0"
+version = "0.1.1"
 description = "session 插件 orm 扩展"
 authors = ["meetwq <meetwq@gmail.com>"]
 license = "MIT"
@@ -12,14 +12,14 @@ repository = "https://github.com/noneplugin/nonebot-plugin-session-orm"
 python = "^3.8"
 nonebot2 = { version = "^2.0.1", extras = ["fastapi"] }
 nonebot-plugin-session = "^0.2.0"
-nonebot-plugin-orm = "^0.2.3"
+nonebot-plugin-orm = ">=0.3.0,<1.0.0"
 
 [tool.nonebot]
 plugins = ["nonebot_plugin_session_orm"]
 
 [tool.poetry.group.dev.dependencies]
 nb-cli = "^1.0.0"
-nonebot-plugin-orm = { extras = ["default"], version = "^0.2.3" }
+nonebot-plugin-orm = { extras = ["default"], version = ">=0.3.0,<1.0.0" }
 nonebot-plugin-datastore = "^1.0.0"
 
 [tool.poetry.group.test.dependencies]
