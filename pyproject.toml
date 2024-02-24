@@ -10,16 +10,15 @@ repository = "https://github.com/noneplugin/nonebot-plugin-session-orm"
 
 [tool.poetry.dependencies]
 python = "^3.8"
-nonebot2 = { version = "^2.0.1", extras = ["fastapi"] }
-nonebot-plugin-session = "^0.2.0"
-nonebot-plugin-orm = ">=0.3.0,<1.0.0"
+nonebot2 = { version = "^2.2.0", extras = ["fastapi"] }
+nonebot-plugin-session = "^0.3.0"
+nonebot-plugin-orm = ">=0.7.0,<1.0.0"
 
 [tool.nonebot]
 plugins = ["nonebot_plugin_session_orm"]
 
 [tool.poetry.group.dev.dependencies]
-nb-cli = "^1.0.0"
-nonebot-plugin-orm = { extras = ["default"], version = ">=0.3.0,<1.0.0" }
+nonebot-plugin-orm = { extras = ["default"], version = ">=0.7.0,<1.0.0" }
 nonebot-plugin-datastore = "^1.0.0"
 
 [tool.poetry.group.test.dependencies]
@@ -31,6 +30,10 @@ aiomysql = "^0.1.0"
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "UP", "C", "T", "PYI", "Q"]
+ignore = ["E402", "E501", "E711", "C901", "UP037"]
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
