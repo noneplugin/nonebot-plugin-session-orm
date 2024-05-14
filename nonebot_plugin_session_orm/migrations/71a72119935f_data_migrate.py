@@ -91,7 +91,7 @@ def upgrade(name: str = "") -> None:
 
     try:
         require("nonebot_plugin_datastore")
-    except RuntimeError:
+    except (RuntimeError, ModuleNotFoundError):
         return
 
     run_async(data_migrate)
