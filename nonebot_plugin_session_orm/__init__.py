@@ -3,6 +3,7 @@ from nonebot.plugin import PluginMetadata, inherit_supported_adapters
 
 require("nonebot_plugin_orm")
 require("nonebot_plugin_session")
+require("nonebot_plugin_uninfo")
 
 from . import migrations
 from .model import SessionModel as SessionModel
@@ -15,6 +16,8 @@ __plugin_meta__ = PluginMetadata(
     usage="请参考文档",
     type="library",
     homepage="https://github.com/noneplugin/nonebot-plugin-session-orm",
-    supported_adapters=inherit_supported_adapters("nonebot_plugin_session"),
+    supported_adapters=inherit_supported_adapters(
+        "nonebot_plugin_session", "nonebot_plugin_uninfo"
+    ),
     extra={"orm_version_location": migrations},
 )

@@ -5,9 +5,24 @@ from typing import List, Optional, Union
 from nonebot.log import logger
 from nonebot_plugin_orm import Model, get_session
 from nonebot_plugin_session import Session, SessionIdType, SessionLevel
+from nonebot_plugin_uninfo.orm import SessionModel as UninfoSessionModel
 from sqlalchemy import Integer, String, UniqueConstraint, exc, select
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql import ColumnElement
+
+
+class SessionToUninfoMap(Model):
+    __table_args__ = (
+        UniqueConstraint(
+            "session_id",
+            "uninfo_id",
+            name="unique_map",
+        ),
+    )
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    session_id: Mapped[int] = mapped_column(Integer)
+    uninfo_id: Mapped[int] = mapped_column(Integer)
 
 
 class SessionModel(Model):
