@@ -65,7 +65,7 @@ def _level_to_scene(
         scene_id = id1
     elif level == SessionLevel.GROUP:
         scene_type = SceneType.GROUP
-        scene_id = id1
+        scene_id = id2
     elif level == SessionLevel.CHANNEL:
         if not id2:
             scene_type = SceneType.GUILD
@@ -161,11 +161,11 @@ def _write_uninfo_data(
 
             session_model = SessionModel(**uninfo_data)
             db_session.add(session_model)
+            db_session.commit()
             db_session.refresh(session_model)
             uninfo_id = session_model.id
             id_map[session_id] = uninfo_id
             session_key_id_map[session_key] = uninfo_id
-        db_session.commit()
 
     return id_map
 
