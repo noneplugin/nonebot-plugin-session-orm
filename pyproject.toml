@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nonebot_plugin_session_orm"
-version = "0.2.0"
+version = "0.2.1"
 description = "session 插件 orm 扩展"
 authors = ["meetwq <meetwq@gmail.com>"]
 license = "MIT"
