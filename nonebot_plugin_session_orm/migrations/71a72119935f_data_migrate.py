@@ -5,6 +5,7 @@
 创建时间: 2023-10-12 13:31:08.788371
 
 """
+
 from __future__ import annotations
 
 from collections.abc import Sequence

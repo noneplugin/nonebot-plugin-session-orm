@@ -1,6 +1,6 @@
 import asyncio
 import sys
-from typing import List, Optional, Union
+from typing import Optional, Union
 
 from nonebot.log import logger
 from nonebot_plugin_orm import Model, get_session
@@ -54,7 +54,7 @@ class SessionModel(Model):
         include_platform: bool = True,
         include_bot_type: bool = True,
         include_bot_id: bool = True,
-    ) -> List[ColumnElement[bool]]:
+    ) -> list[ColumnElement[bool]]:
         id_type = min(max(id_type, 0), SessionIdType.GROUP_USER)
 
         if session.level == SessionLevel.LEVEL0:
@@ -70,7 +70,7 @@ class SessionModel(Model):
         include_id2 = bool((id_type >> 1) & 1)
         include_id3 = bool((id_type >> 2) & 1)
 
-        whereclause: List[ColumnElement[bool]] = []
+        whereclause: list[ColumnElement[bool]] = []
         if include_bot_id:
             whereclause.append(SessionModel.bot_id == session.bot_id)
         if include_bot_type:

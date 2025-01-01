@@ -9,8 +9,8 @@ homepage = "https://github.com/noneplugin/nonebot-plugin-session-orm"
 repository = "https://github.com/noneplugin/nonebot-plugin-session-orm"
 
 [tool.poetry.dependencies]
-python = "^3.8"
-nonebot2 = { version = "^2.2.0", extras = ["fastapi"] }
+python = "^3.9"
+nonebot2 = "^2.3.0"
 nonebot-plugin-session = "^0.3.0"
 nonebot-plugin-orm = ">=0.7.0,<1.0.0"
 
@@ -18,18 +18,28 @@ nonebot-plugin-orm = ">=0.7.0,<1.0.0"
 plugins = ["nonebot_plugin_session_orm"]
 
 [tool.poetry.group.dev.dependencies]
+nonebot2 = { version = "^2.3.0", extras = ["fastapi"] }
 nonebot-plugin-orm = { extras = ["default"], version = ">=0.7.0,<1.0.0" }
 nonebot-plugin-datastore = "^1.0.0"
 
 [tool.poetry.group.test.dependencies]
-nonebug = "^0.3.0"
-pytest-cov = "^4.0.0"
-pytest-asyncio = ">=0.20.2,<0.22.0"
-asyncpg = "^0.27.0"
-aiomysql = "^0.1.0"
+nonebug = "^0.4.2"
+pytest-cov = "^5.0.0"
+pytest-asyncio = "^0.24.0"
+asyncpg = "^0.30.0"
+aiomysql = "^0.2.0"
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
+
+[tool.pyright]
+pythonVersion = "3.9"
+pythonPlatform = "All"
+typeCheckingMode = "basic"
+
+[tool.ruff]
+line-length = 88
+target-version = "py39"
 
 [tool.ruff.lint]
 select = ["E", "W", "F", "UP", "C", "T", "PYI", "Q"]

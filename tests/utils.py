@@ -13,7 +13,7 @@ def assert_session(
     level: "SessionLevel",
     id1: Optional[str],
     id2: Optional[str],
-    id3: Optional[str]
+    id3: Optional[str],
 ):
     assert session.bot_id == bot_id
     assert session.bot_type == bot_type
