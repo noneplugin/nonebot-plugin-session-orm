@@ -11,7 +11,7 @@ from sqlalchemy.sql import ColumnElement
 
 
 class SessionModel(Model):
-    __tablename__ = "nonebot_plugin_session_sessionmodel"
+    __tablename__ = "nonebot_plugin_session_orm_sessionmodel"
     __table_args__ = (
         UniqueConstraint(
             "bot_id",
@@ -21,7 +21,7 @@ class SessionModel(Model):
             "id1",
             "id2",
             "id3",
-            name="nonebot_plugin_session_unique_session",
+            name="nonebot_plugin_session_orm_unique_session",
         ),
     )
 
